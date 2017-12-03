@@ -1,0 +1,22 @@
+@charset "UTF-8";
+@import "../symbols";
+
+.Header {
+  @at-root {
+
+    & {
+    }
+
+    .Header__inner {
+      max-width: 960px;
+      margin: 0 auto;
+
+      h1 {
+        font-size: 48px;
+        line-height: 1.1;
+        font-weight: 900;
+      }
+    }
+
+  }
+}

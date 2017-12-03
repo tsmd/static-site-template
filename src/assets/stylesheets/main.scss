@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+// Setting
+@import "symbols";
+
+// Reset
+@import "~minireset.css/minireset.sass";
+
+// Base
+@import "base";
+
+// Components
+@import "components/footer";
+@import "components/header";
+@import "components/main";

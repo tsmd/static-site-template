@@ -1,0 +1,20 @@
+@charset "UTF-8";
+@import "../symbols";
+
+.Footer {
+  @at-root {
+
+    & {
+    }
+
+    .Footer__inner {
+      max-width: 960px;
+      margin: 0 auto;
+
+      p {
+        color: gray;
+      }
+    }
+
+  }
+}

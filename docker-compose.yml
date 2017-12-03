@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  server:
+    image: php:apache
+    ports:
+      - "3002:80"
+    volumes:
+      - ./.tmp:/var/www/html

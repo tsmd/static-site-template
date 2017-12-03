@@ -1,0 +1,20 @@
+@charset "UTF-8";
+@import "../symbols";
+
+.Main {
+  @at-root {
+
+    & {
+    }
+
+    .Main__inner {
+      max-width: 960px;
+      margin: 0 auto;
+
+      p {
+        margin: 2em 0;
+      }
+    }
+
+  }
+}
