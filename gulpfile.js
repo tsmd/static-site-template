@@ -23,7 +23,7 @@ const babelify = require('babelify')
 const envify = require('envify')
 const uglify = require('gulp-uglify')
 const imagemin = require('gulp-imagemin')
-const svgstore = require('gulp-svgstore')
+const svgSprite = require('gulp-svg-sprite')
 const browserSync = require('browser-sync').create()
 
 const argv = minimist(process.argv.slice(2))
@@ -128,7 +128,18 @@ gulp.task('svgSprite', () => {
       .filter(file => fs.statSync(`${baseDir}/${file}`).isDirectory())
       .map(dir => gulp.src(`${baseDir}/${dir}/*.svg`)
         .pipe(rename({prefix: `${dir}-`}))
-        .pipe(svgstore())
+        .pipe(svgSprite({
+          mode: {
+            symbol: {
+              dest: '.',
+              sprite: `${dir}.svg`,
+              // inline: true,
+            },
+          },
+          shape: {
+            meta: `${baseDir}/${dir}/meta.yml`,
+          },
+        }))
         .pipe(gulp.dest(baseDir)))
   )
 })
@@ -209,7 +220,7 @@ gulp.task('build', done => {
   runSequence(
     ['imagemin'],
     ['svgSprite'],
-    ['imagemin', 'clean'], // SVG Sprite生成後にもimageminを適用する
+    ['clean'],
     ['static', 'css', 'js'],
     done
   )
