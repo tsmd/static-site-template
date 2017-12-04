@@ -51,8 +51,6 @@ const targetDir = isProduction ? distDir : tempDir
 // -----------------------------------------------------
 
 gulp.task('css', () => {
-  const postCssPlugins = []
-
   return gulp.src(`${srcDir}/assets/stylesheets/main.scss`)
     .pipe(isProduction ? sourcemaps.init() : gutil.noop())
     .pipe(sass({
