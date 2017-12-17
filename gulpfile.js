@@ -61,7 +61,7 @@ gulp.task('css', () => {
     }).on('error', sass.logError))
     .pipe(rename({extname: '.bundle.css'}))
     .pipe(postCss([
-      autoprefixer(), // Browserslist is in package.json
+      autoprefixer({grid: true}), // Browserslist is in package.json
     ]))
     .pipe(isProduction ? postCss([
       mergeLonghand(),
