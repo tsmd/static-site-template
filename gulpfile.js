@@ -12,7 +12,7 @@ const changed = require('gulp-changed')
 const sourcemaps = require('gulp-sourcemaps')
 const sass = require('gulp-sass')
 const tildeImporter = require('node-sass-tilde-importer')
-const postCss =require('gulp-postcss')
+const postCss = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
 const mergeLonghand = require('postcss-merge-longhand')
 const csswring = require('csswring')
@@ -59,7 +59,7 @@ gulp.task('css', () => {
     }).on('error', sass.logError))
     .pipe(rename({extname: '.bundle.css'}))
     .pipe(postCss([
-      autoprefixer(), // Browserslist is in package.json
+      autoprefixer({grid: true}), // Browserslist is in package.json
     ]))
     .pipe(isProduction ? postCss([
       mergeLonghand(),
@@ -80,7 +80,7 @@ gulp.task('js', () => {
     packageCache: {},
   })
     .plugin(licensify)
-    .transform(babelify, {presets: ["es2015"]})
+    .transform(babelify, {presets: ['es2015']})
     .transform(envify)
 
   const bundle = () => bundler
@@ -110,10 +110,12 @@ gulp.task('imagemin', () => {
   return gulp.src(`${srcDir}/**/*.{png,jpg,jpeg,gif,svg}`)
     .pipe(changed(tempDir, {hasChanged: changed.compareContents}))
     .pipe(imagemin([
-      imagemin.svgo({plugins: [
-        {removeUselessDefs: false},
-        {cleanupIDs: false},
-      ]}),
+      imagemin.svgo({
+        plugins: [
+          {removeUselessDefs: false},
+          {cleanupIDs: false},
+        ]
+      }),
     ]))
     .pipe(gulp.dest(tempDir))
     .pipe(gulp.dest(srcDir))
