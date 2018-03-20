@@ -6,6 +6,12 @@
   <title>Static Site</title>
   <link rel="stylesheet" href="/assets/stylesheets/main.bundle.css">
   <script src="/assets/javascripts/main.bundle.js" defer></script>
+  <link rel="manifest" href="/assets/favicon/manifest.json">
+  <link rel="icon" href="/assets/favicon/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon120.png" sizes="120x120">
+  <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon152.png" sizes="152x152">
+  <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon167.png" sizes="167x167">
+  <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon180.png" sizes="180x180">
 </head>
 <body>
 

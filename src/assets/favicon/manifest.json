@@ -1,0 +1,14 @@
+{
+  "lang": "ja",
+  "name": "Static Site",
+  "short_name": "Static",
+  "icons": [
+    {
+      "src": "/assets/favicon/app-icon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "display": "standalone",
+  "start_url": "/"
+}
