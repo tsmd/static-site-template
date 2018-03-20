@@ -17,7 +17,6 @@ const mergeLonghand = require('postcss-merge-longhand')
 const csswring = require('csswring')
 const browserify = require('browserify')
 const watchify = require('watchify')
-const licensify = require('licensify')
 const babelify = require('babelify')
 const envify = require('envify')
 const uglify = require('gulp-uglify')
@@ -78,7 +77,6 @@ gulp.task('js', () => {
     cache: {},
     packageCache: {},
   })
-    .plugin(licensify)
     .transform(babelify, {presets: ['es2015']})
     .transform(envify)
 
