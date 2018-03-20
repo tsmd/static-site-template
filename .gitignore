@@ -4,6 +4,8 @@ Desktop.ini
 ._*
 npm-debug.log*
 node_modules/
+.node-version
+package-lock.json
 .idea/
 .vscode/
 .tmp/
