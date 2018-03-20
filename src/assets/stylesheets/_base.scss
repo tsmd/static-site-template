@@ -2,6 +2,8 @@
 @import "_symbols.scss";
 
 :root {
+  max-width: 2560px;
+  margin: 0 auto;
   padding: 50px;
   color: $color-text;
   line-height: 2;
