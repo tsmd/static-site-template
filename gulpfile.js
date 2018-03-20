@@ -11,7 +11,6 @@ const runSequence = require('run-sequence')
 const changed = require('gulp-changed')
 const sourcemaps = require('gulp-sourcemaps')
 const sass = require('gulp-sass')
-const tildeImporter = require('node-sass-tilde-importer')
 const postCss = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
 const mergeLonghand = require('postcss-merge-longhand')
@@ -54,7 +53,7 @@ gulp.task('css', () => {
   return gulp.src(`${srcDir}/assets/stylesheets/main.scss`)
     .pipe(isProduction ? sourcemaps.init() : gutil.noop())
     .pipe(sass({
-      importer: tildeImporter,
+      includePaths: ['node_modules'],
       outputStyle: 'nested',
     }).on('error', sass.logError))
     .pipe(rename({extname: '.bundle.css'}))
