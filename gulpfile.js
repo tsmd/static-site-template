@@ -77,7 +77,7 @@ gulp.task('js', () => {
     cache: {},
     packageCache: {},
   })
-    .transform(babelify, {presets: ['es2015']})
+    .transform(babelify)
     .transform(envify)
 
   const bundle = () => bundler
