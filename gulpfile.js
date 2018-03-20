@@ -7,7 +7,6 @@ const buffer = require('vinyl-buffer')
 const gulp = require('gulp')
 const gutil = require('gulp-util')
 const rename = require('gulp-rename')
-const runSequence = require('run-sequence')
 const changed = require('gulp-changed')
 const sourcemaps = require('gulp-sourcemaps')
 const sass = require('gulp-sass')
@@ -20,7 +19,7 @@ const watchify = require('watchify')
 const babelify = require('babelify')
 const envify = require('envify')
 const uglify = require('gulp-uglify')
-const imagemin = require('gulp-imagemin')
+const gimagemin = require('gulp-imagemin')
 const svgstore = require('gulp-svgstore')
 const browserSync = require('browser-sync').create()
 
@@ -48,9 +47,9 @@ const targetDir = isProduction ? distDir : tempDir
 // CSS
 // -----------------------------------------------------
 
-gulp.task('css', () => {
+const css = () => {
   return gulp.src(`${srcDir}/assets/stylesheets/main.scss`)
-    .pipe(isProduction ? sourcemaps.init() : gutil.noop())
+    .pipe(!isProduction ? sourcemaps.init() : gutil.noop())
     .pipe(sass({
       includePaths: ['node_modules'],
       outputStyle: 'nested',
@@ -59,20 +58,20 @@ gulp.task('css', () => {
     .pipe(postCss([
       autoprefixer({grid: true}), // Browserslist is in package.json
     ]))
-    .pipe(isProduction ? postCss([
+    .pipe(!isProduction ? postCss([
       mergeLonghand(),
       csswring(),
     ]) : gutil.noop())
-    .pipe(isProduction ? sourcemaps.write('.') : gutil.noop())
+    .pipe(!isProduction ? sourcemaps.write('.') : gutil.noop())
     .pipe(gulp.dest(`${targetDir}/assets/stylesheets`))
     .pipe(noReload ? gutil.noop() : browserSync.stream({match: '**/*.css'}))
-})
+}
 
 // -----------------------------------------------------
 // JavaScript
 // -----------------------------------------------------
 
-gulp.task('js', () => {
+const js = () => {
   const bundler = browserify(`${srcDir}/assets/javascripts/main.js`, {
     cache: {},
     packageCache: {},
@@ -85,9 +84,9 @@ gulp.task('js', () => {
     .on('error', err => gutil.log('Browserify Error', err))
     .pipe(source(`main.bundle.js`))
     .pipe(buffer())
-    .pipe(sourcemaps.init())
+    .pipe(!isProduction ? sourcemaps.init() : gutil.noop())
     .pipe(isProduction ? uglify() : gutil.noop())
-    .pipe(sourcemaps.write('.'))
+    .pipe(!isProduction ? sourcemaps.write('.') : gutil.noop())
     .pipe(gulp.dest(`${targetDir}/assets/javascripts`))
 
   if (!isProduction) {
@@ -97,17 +96,17 @@ gulp.task('js', () => {
   }
 
   return bundle()
-})
+}
 
 // -----------------------------------------------------
 // Image
 // -----------------------------------------------------
 
-gulp.task('imagemin', () => {
+const imagemin = () => {
   return gulp.src(`${srcDir}/**/*.{png,jpg,jpeg,gif,svg}`)
     .pipe(changed(tempDir, {hasChanged: changed.compareContents}))
-    .pipe(imagemin([
-      imagemin.svgo({
+    .pipe(gimagemin([
+      gimagemin.svgo({
         plugins: [
           {removeUselessDefs: false},
           {cleanupIDs: false},
@@ -116,9 +115,9 @@ gulp.task('imagemin', () => {
     ]))
     .pipe(gulp.dest(tempDir))
     .pipe(gulp.dest(srcDir))
-})
+}
 
-gulp.task('svgSprite', () => {
+const svgSprite = () => {
   const baseDir = `${srcDir}/assets/sprites`
   return Promise.all(
     fs.readdirSync(baseDir)
@@ -128,7 +127,7 @@ gulp.task('svgSprite', () => {
         .pipe(svgstore())
         .pipe(gulp.dest(baseDir)))
   )
-})
+}
 
 // -----------------------------------------------------
 // Static File
@@ -139,10 +138,9 @@ gulp.task('static', () => {
     `${srcDir}/**`,
     `${srcDir}/**/.htaccess`,
     `!${srcDir}/assets/javascripts/**`,
-    `!${srcDir}/assets/sprites/*/**`,
+    `!${srcDir}/assets/sprites/*/**/*`,
     `!${srcDir}/assets/stylesheets/**`,
-  ])
-    .pipe(changed(targetDir))
+  ], {since: gulp.lastRun('static')})
     .pipe(gulp.dest(targetDir))
 })
 
@@ -150,33 +148,33 @@ gulp.task('static', () => {
 // Clean
 // -----------------------------------------------------
 
-gulp.task('clean', () => {
+const clean = () => {
   return del(`${targetDir}/**/*`, {dot: true})
-})
+}
 
 // -----------------------------------------------------
 // Server
 // -----------------------------------------------------
 
-gulp.task('serve', () => {
+const serve = (done) => {
   browserSync.init({
     proxy: process.env.APACHE_VHOST || 'localhost:3002',
     notify: false,
     open: false,
     reloadDebounce: 100,
-  })
-})
+  }, done)
+}
 
 // ------------------------------------------------------
 // Watch
 // ------------------------------------------------------
 
-gulp.task('watch', () => {
+const watch = () => {
   gulp.watch([
     `${srcDir}/**`,
     `${srcDir}/**/.*`,
-  ], ['static'])
-  gulp.watch(`${srcDir}/assets/stylesheets/**/*.scss`, ['css'])
+  ], gulp.series('static'))
+  gulp.watch(`${srcDir}/assets/stylesheets/**/*.scss`, gulp.series(css))
 
   if (!noReload) {
     gulp.watch([
@@ -186,28 +184,33 @@ gulp.task('watch', () => {
       `!${targetDir}/assets/stylesheets/**/*`,
     ], browserSync.reload)
   }
-})
+}
 
 // ------------------------------------------------------
 // Export tasks
 // ------------------------------------------------------
 
-gulp.task('default', done => {
-  runSequence(
-    ['clean'],
-    ['static', 'css', 'js'],
-    ['serve'],
-    ['watch'],
-    done
-  )
-})
+gulp.task('default', gulp.series(
+  clean,
+  gulp.parallel(
+    'static',
+    css,
+    js
+  ),
+  serve,
+  watch
+))
 
-gulp.task('build', done => {
-  runSequence(
-    ['imagemin'],
-    ['svgSprite'],
-    ['imagemin', 'clean'], // SVG Sprite生成後にもimageminを適用する
-    ['static', 'css', 'js'],
-    done
+gulp.task('build', gulp.series(
+  imagemin,
+  svgSprite,
+  gulp.parallel(
+    imagemin,
+    clean
+  ),
+  gulp.parallel(
+    'static',
+    css,
+    js
   )
-})
+))
