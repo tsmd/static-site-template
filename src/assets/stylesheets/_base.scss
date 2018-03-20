@@ -1,7 +1,29 @@
 @charset "UTF-8";
 @import "_symbols.scss";
 
-html {
+:root {
   padding: 50px;
+  color: $color-text;
+  line-height: 2;
   font-family: $font-sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  -webkit-text-size-adjust: 100%;
+}
+
+a,
+:any-link {
+  color: darkblue;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+// what-input.js 用　フォーカスリングのスタイル
+[data-whatintent="mouse"] *:focus,
+[data-whatintent="touch"] *:focus {
+  outline: none;
 }
