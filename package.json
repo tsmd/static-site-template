@@ -32,18 +32,16 @@
     "gulp-svgstore": "^6.1.0",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "^3.0.8",
+    "jquery": "^3.2.1",
     "minimist": "^1.2.0",
+    "minireset.css": "^0.0.3",
     "postcss-merge-longhand": "^3.0.0",
     "run-sequence": "^2.2.0",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.9.0"
-  },
-  "dependencies": {
-    "jquery": "^3.2.1",
-    "minireset.css": "^0.0.3",
     "svg4everybody": "^2.1.9",
     "underscore": "^1.8.3",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.9.0",
     "what-input": "^5.0.5"
   },
   "browserslist": [
