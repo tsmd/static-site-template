@@ -44,7 +44,8 @@
     "jquery": "^3.2.1",
     "minireset.css": "^0.0.3",
     "svg4everybody": "^2.1.9",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "what-input": "^5.0.5"
   },
   "browserslist": [
     "IE 11",
