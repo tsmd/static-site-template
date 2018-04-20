@@ -24,7 +24,6 @@
     "dotenv": "^4.0.0",
     "envify": "^4.1.0",
     "gulp": "^4.0.0",
-    "gulp-changed": "^3.1.1",
     "gulp-imagemin": "^4.0.0",
     "gulp-postcss": "^7.0.0",
     "gulp-rename": "^1.2.2",

@@ -7,7 +7,6 @@ const buffer = require('vinyl-buffer')
 const gulp = require('gulp')
 const gutil = require('gulp-util')
 const rename = require('gulp-rename')
-const changed = require('gulp-changed')
 const sourcemaps = require('gulp-sourcemaps')
 const sass = require('gulp-sass')
 const postCss = require('gulp-postcss')
@@ -65,7 +64,6 @@ const css = () => {
     ]) : gutil.noop())
     .pipe(!isProduction ? sourcemaps.write('.') : gutil.noop())
     .pipe(gulp.dest(`${targetDir}/assets/stylesheets`))
-    .pipe(noReload ? gutil.noop() : browserSync.stream({match: '**/*.css'}))
 }
 
 // -----------------------------------------------------
@@ -104,29 +102,26 @@ const js = () => {
 // -----------------------------------------------------
 
 const imagemin = () => {
-  return gulp.src(`${srcDir}/**/*.{png,jpg,jpeg,gif,svg}`)
-    .pipe(changed(tempDir, {hasChanged: changed.compareContents}))
-    .pipe(gimagemin([
-      gimagemin.svgo({
-        plugins: [
-          {removeUselessDefs: false},
-          {cleanupIDs: false},
-        ]
-      }),
-    ]))
-    .pipe(gulp.dest(tempDir))
-    .pipe(gulp.dest(srcDir))
+  return gulp.src(`${publicDir}/**/*.{png,jpg,jpeg,gif,svg}`)
+    .pipe(gimagemin())
+    .pipe(gulp.dest(publicDir))
 }
 
 const svgSprite = () => {
   const baseDir = `${srcDir}/assets/sprites`
+  const distDir = `${targetDir}/assets/sprites`
   return Promise.all(
     fs.readdirSync(baseDir)
       .filter(file => fs.statSync(`${baseDir}/${file}`).isDirectory())
       .map(dir => gulp.src(`${baseDir}/${dir}/*.svg`)
-        .pipe(rename({prefix: `${dir}-`}))
         .pipe(svgstore())
-        .pipe(gulp.dest(baseDir)))
+        .pipe(isProduction ? gimagemin([
+          gimagemin.svgo({plugins: [
+            {removeUselessDefs: false},
+            {cleanupIDs: false},
+          ]}),
+        ]) : gutil.noop())
+        .pipe(gulp.dest(distDir)))
   )
 }
 
@@ -136,12 +131,8 @@ const svgSprite = () => {
 
 gulp.task('static', () => {
   return gulp.src([
-    `${srcDir}/**`,
-    `${srcDir}/**/.htaccess`,
-    `!${srcDir}/assets/javascripts/**`,
-    `!${srcDir}/assets/sprites/*/**/*`,
-    `!${srcDir}/assets/stylesheets/**`,
-  ], {since: gulp.lastRun('static')})
+    `${publicDir}/**/*`,
+  ], {dot: true})
     .pipe(gulp.dest(targetDir))
 })
 
@@ -158,8 +149,16 @@ const clean = () => {
 // -----------------------------------------------------
 
 const serve = (done) => {
+  const watchFiles = noReload ? [] : [
+    `${tempDir}/**/*`,
+    `${publicDir}/**/*`,
+  ]
   browserSync.init({
-    proxy: process.env.APACHE_VHOST || 'localhost:3002',
+    // proxy: process.env.APACHE_VHOST || 'localhost:3002',
+    files: watchFiles,
+    server: {
+      baseDir: [tempDir, publicDir],
+    },
     notify: false,
     open: false,
     reloadDebounce: 100,
@@ -171,20 +170,7 @@ const serve = (done) => {
 // ------------------------------------------------------
 
 const watch = () => {
-  gulp.watch([
-    `${srcDir}/**`,
-    `${srcDir}/**/.*`,
-  ], gulp.series('static'))
   gulp.watch(`${srcDir}/assets/stylesheets/**/*.scss`, gulp.series(css))
-
-  if (!noReload) {
-    gulp.watch([
-      `${targetDir}/**`,
-      `${targetDir}/**/.*`,
-      // CSSは BrowserSync.stream を使って反映するため watch 対象外
-      `!${targetDir}/assets/stylesheets/**/*`,
-    ], browserSync.reload)
-  }
 }
 
 // ------------------------------------------------------
@@ -194,24 +180,21 @@ const watch = () => {
 gulp.task('default', gulp.series(
   clean,
   gulp.parallel(
-    'static',
+    // 'static',
     css,
-    js
+    js,
+    svgSprite,
   ),
   serve,
   watch
 ))
 
 gulp.task('build', gulp.series(
-  imagemin,
-  svgSprite,
-  gulp.parallel(
-    imagemin,
-    clean
-  ),
+  clean,
   gulp.parallel(
     'static',
     css,
-    js
+    js,
+    svgSprite,
   )
 ))
