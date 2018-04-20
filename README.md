@@ -1,25 +1,37 @@
 # Static Site Template
-  
+
+## ディレクトリ構成
+```
+.
+├── .tmp ...................... コンパイルしたファイルの一時的格納先。バージョン管理に含まない
+├── dist ...................... ビルドされたファイルの出力先
+├── public .................... 静的ファイル。ビルドすると dist にコピーされる
+│   ├── assets
+│   │   ├── fonts
+│   │   └── images
+│   ├── images ................ トップページで使用する画像
+└── src ....................... JS, Sass などコンパイルが必要なファイル
+    └── assets
+        ├── javascripts ....... JavaScript
+        ├── sprites ........... SVG スプライト用画像
+        │   └── icons
+        └── stylesheets ....... Sass
+            └── components .... 各 BEM Block をファイルに分けて格納
+```
+
 ## 開発のはじめ方
 
 ### 用意するもの
-- Node.js ~7.x
-- NPM ~5.x
-- Docker + Docker Compose
+- Node.js v8 以上
+- NPM v5 以上
 
 ### 必要モジュールのインストール
-  ```
+```
 $ npm install
 ```
 
 ### 開発をはじめるコマンド
-以下のコマンドで、ポート 3002 番でアクセスできる Apache サーバーが立ち上がります。
-
-```
-$ docker-compose up
-```
-
-次に、別のコンソールで以下のコマンドを実行します。
+以下のコマンドを実行します。
 
 ```
 $ npm run start
@@ -34,26 +46,14 @@ $ npm run start
 $ npm run start-no-reload
 ```
 
+### 画像アセットの最適化
+以下のコマンドを実行すると、画像ファイルの圧縮が行われます。
+```
+$ npm run imagemin
+```
+
 ### ビルドコマンド
 以下のコマンドを実行すると、ファイル一式が `dist` ディレクトリ以下に展開され、CSS と JS は最小化されます。
 ```
 $ npm run build
-```
-
-### （付録）Apache サーバーの設定
-Docker を使用しない場合、Apache サーバーを自前で立ち上げることでも開発環境を用意できます。
-
-Apache サーバーを以下のように設定してください。
-
-- ドキュメントルートを、`/path/to/this/repository/.tmp` にする  
-  （このディレクトリはリポジトリの clone 時は存在しませんが、後述の開発用コマンドを実行することで作成されます）
-- [`AllowOverride` の設定で .htaccess を使用可能にする](https://httpd.apache.org/docs/current/ja/mod/core.html#allowoverride)
-- あるいは、[`index.php` をディレクトリインデックスとして使用する](https://httpd.apache.org/docs/current/ja/mod/mod_dir.html#directoryindex)
-- バーチャルホストは自由に設定可
-
-#### 環境変数の設定
-**もし、立ち上げた Apache サーバーのバーチャルホストが `localhost` 以外の場合**、そのホスト名を環境変数に設定する必要があります。`.env.example` ファイルを同じディレクトリにコピーし、ファイル名を `.env` としてください。このファイルをテキストエディタで編集し、`APACHE_VHOST` の値を適切なホスト名に書き換えてください。
-
-```
-APACHE_VHOST=staticsite.local
 ```
