@@ -36,7 +36,6 @@
     "jquery": "^3.2.1",
     "minimist": "^1.2.0",
     "minireset.css": "^0.0.3",
-    "postcss-merge-longhand": "^3.0.0",
     "svg4everybody": "^2.1.9",
     "underscore": "^1.8.3",
     "vinyl-buffer": "^1.0.1",

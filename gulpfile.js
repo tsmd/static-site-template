@@ -12,7 +12,6 @@ const sourcemaps = require('gulp-sourcemaps')
 const sass = require('gulp-sass')
 const postCss = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
-const mergeLonghand = require('postcss-merge-longhand')
 const csswring = require('csswring')
 const browserify = require('browserify')
 const watchify = require('watchify')
@@ -34,6 +33,9 @@ const noReload = argv.reload === false
 
 /** src ディレクトリ */
 const srcDir = 'src'
+
+/** 静的ファイル格納ディレクトリ */
+const publicDir = 'public'
 
 /** build 時の出力ディレクトリ */
 const distDir = 'dist'
@@ -58,8 +60,7 @@ const css = () => {
     .pipe(postCss([
       autoprefixer({grid: true}), // Browserslist is in package.json
     ]))
-    .pipe(!isProduction ? postCss([
-      mergeLonghand(),
+    .pipe(isProduction ? postCss([
       csswring(),
     ]) : gutil.noop())
     .pipe(!isProduction ? sourcemaps.write('.') : gutil.noop())
