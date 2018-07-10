@@ -49,9 +49,6 @@
     "what-input": "^5.0.5"
   },
   "browserslist": [
-    "IE 11",
-    "> 1% in JP",
-    "last 1 versions",
-    "Firefox ESR"
+    "> 0.1% in JP"
   ]
 }
