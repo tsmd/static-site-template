@@ -1,4 +1,4 @@
-import './polyfill'
-import 'what-input'
+import "./polyfill";
+import "what-input";
 
-console.log('main.js is loaded')
+console.log("main.js is loaded");
