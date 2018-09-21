@@ -14,8 +14,9 @@
 └── src ....................... JS, Sass などコンパイルが必要なファイル
     └── assets
         ├── javascripts ....... JavaScript
-        ├── sprites ........... SVG スプライト用画像
-        │   └── icons
+        ├── images
+        │   ├── sprites ........SVG スプライト用画像
+        │   │   └── icons
         └── stylesheets ....... Sass
             └── components .... 各 BEM Block をファイルに分けて格納
 ```

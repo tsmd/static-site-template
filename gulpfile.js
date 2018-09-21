@@ -113,8 +113,8 @@ const imagemin = () => {
 };
 
 const svgSprite = () => {
-  const baseDir = `${srcDir}/assets/sprites`;
-  const distDir = `${targetDir}/assets/sprites`;
+  const baseDir = `${srcDir}/assets/images/sprites`;
+  const distDir = `${targetDir}/assets/images/sprites`;
   return Promise.all(
     fs
       .readdirSync(baseDir)
