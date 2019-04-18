@@ -57,7 +57,7 @@ $ npm run start-no-reload
 以下のコマンドを実行すると、画像ファイルの圧縮が行われます。
 
 ```
-$ npm run imagemin
+$ npm run gulp -- imagemin
 ```
 
 ### ビルドコマンド
@@ -66,4 +66,16 @@ $ npm run imagemin
 
 ```
 $ npm run build
+```
+
+### コード品質ツール
+
+```
+$ npm run lint
+```
+
+エラーを自動修正する場合は以下。
+
+```
+$ npm run lint -- --fix
 ```

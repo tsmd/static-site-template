@@ -6,13 +6,9 @@
     "start": "gulp",
     "start-no-reload": "gulp --no-reload",
     "build": "gulp build --production",
-    "eslint": "eslint",
-    "prettier": "prettier"
+    "lint": "eslint --ignore-path .gitignore src"
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:tsmd/static-site-template.git"
-  },
+  "repository": "github:tsmd/static-site-template",
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
