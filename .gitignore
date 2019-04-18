@@ -2,12 +2,10 @@
 ._*
 .env
 .idea/
-.node-version
 .tmp/
 .vscode/
 Desktop.ini
 dist/
 node_modules/
 npm-debug.log*
-package-lock.json
 Thumbs.db
