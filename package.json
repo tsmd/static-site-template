@@ -2,10 +2,9 @@
   "name": "static-site-template",
   "private": true,
   "scripts": {
-    "gulp": "gulp",
-    "start": "gulp",
-    "start-no-reload": "gulp --no-reload",
-    "build": "gulp build --production",
+    "start": "cross-env NODE_ENV=development gulp",
+    "build": "cross-env NODE_ENV=development gulp build",
+    "imagemin": "gulp imagemin",
     "lint": "eslint --ignore-path .gitignore src"
   },
   "repository": "github:tsmd/static-site-template",
@@ -16,6 +15,7 @@
     "babelify": "^10.0.0",
     "browser-sync": "^2.24.7",
     "browserify": "^16.2.3",
+    "cross-env": "^5.2.0",
     "csswring": "^7.0.0",
     "del": "^4.1.0",
     "dotenv": "^7.0.0",

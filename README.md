@@ -44,20 +44,12 @@ $ npm run start
 
 `http://localhost:3000` にアクセスすると、BrowserSync が有効になった開発環境にアクセスできます。
 
-#### 自動リロードの無効化
-
-ファイルの変更があると、BrowserSync の機能を使ってブラウザが自動的にリロードされます。これを無効化したい場合、`npm run start` コマンドの代わりに以下のコマンドを使用します。
-
-```
-$ npm run start-no-reload
-```
-
 ### 画像アセットの最適化
 
 以下のコマンドを実行すると、画像ファイルの圧縮が行われます。
 
 ```
-$ npm run gulp -- imagemin
+$ npm run imagemin
 ```
 
 ### ビルドコマンド

@@ -1,7 +1,6 @@
 const fs = require("fs");
 const del = require("del");
 const dotenv = require("dotenv");
-const minimist = require("minimist");
 const source = require("vinyl-source-stream");
 const buffer = require("vinyl-buffer");
 const gulp = require("gulp");
@@ -21,14 +20,10 @@ const gimagemin = require("gulp-imagemin");
 const svgstore = require("gulp-svgstore");
 const browserSync = require("browser-sync").create();
 
-const argv = minimist(process.argv.slice(2));
 dotenv.config();
 
 /** Production モード */
-const isProduction = argv.production;
-
-/** ブラウザの自動リロードを無効化する */
-const noReload = argv.reload === false;
+const isProduction = process.env.NODE_ENV === 'production'
 
 /** src ディレクトリ */
 const srcDir = "src";
