@@ -1,8 +1,7 @@
+const spawn = require("child_process").spawn;
 const fs = require("fs");
 const del = require("del");
 const dotenv = require("dotenv");
-const source = require("vinyl-source-stream");
-const buffer = require("vinyl-buffer");
 const gulp = require("gulp");
 const gutil = require("gulp-util");
 const rename = require("gulp-rename");
@@ -11,11 +10,6 @@ const sass = require("gulp-sass");
 const postCss = require("gulp-postcss");
 const autoprefixer = require("autoprefixer");
 const csswring = require("csswring");
-const browserify = require("browserify");
-const watchify = require("watchify");
-const babelify = require("babelify");
-const envify = require("envify");
-const uglify = require("gulp-uglify");
 const gimagemin = require("gulp-imagemin");
 const svgstore = require("gulp-svgstore");
 const browserSync = require("browser-sync").create();
@@ -23,7 +17,7 @@ const browserSync = require("browser-sync").create();
 dotenv.config();
 
 /** Production モード */
-const isProduction = process.env.NODE_ENV === 'production'
+const isProduction = process.env.NODE_ENV === "production";
 
 /** src ディレクトリ */
 const srcDir = "src";
@@ -45,7 +39,10 @@ const targetDir = isProduction ? distDir : tempDir;
 
 const css = () => {
   return gulp
-    .src(`${srcDir}/assets/stylesheets/main.scss`)
+    .src([
+      `${srcDir}/assets/stylesheets/*.scss`,
+      `!${srcDir}/assets/stylesheets/_*.scss`
+    ])
     .pipe(!isProduction ? sourcemaps.init() : gutil.noop())
     .pipe(
       sass({
@@ -68,32 +65,17 @@ const css = () => {
 // JavaScript
 // -----------------------------------------------------
 
-const js = () => {
-  const bundler = browserify(`${srcDir}/assets/javascripts/main.js`, {
-    cache: {},
-    packageCache: {}
-  })
-    .transform(babelify)
-    .transform(envify);
-
-  const bundle = () =>
-    bundler
-      .bundle()
-      .on("error", err => gutil.log("Browserify Error", err))
-      .pipe(source(`main.bundle.js`))
-      .pipe(buffer())
-      .pipe(!isProduction ? sourcemaps.init() : gutil.noop())
-      .pipe(isProduction ? uglify() : gutil.noop())
-      .pipe(!isProduction ? sourcemaps.write(".") : gutil.noop())
-      .pipe(gulp.dest(`${targetDir}/assets/javascripts`));
-
-  if (!isProduction) {
-    bundler.plugin(watchify);
-    bundler.on("update", bundle);
-    bundler.on("log", gutil.log);
+const js = done => {
+  const args = isProduction ? [""] : ["--watch"];
+  const child = spawn("webpack", args, {
+    shell: true,
+    stdio: "inherit"
+  });
+  if (isProduction) {
+    child.on("exit", done);
+  } else {
+    done();
   }
-
-  return bundle();
 };
 
 // -----------------------------------------------------
@@ -101,10 +83,11 @@ const js = () => {
 // -----------------------------------------------------
 
 const imagemin = () => {
+  const pattern = "**/*.{png,jpg,jpeg,gif,svg}";
   return gulp
-    .src(`${publicDir}/**/*.{png,jpg,jpeg,gif,svg}`)
+    .src([`${publicDir}/${pattern}`, `${srcDir}/${pattern}`], { base: "." })
     .pipe(gimagemin())
-    .pipe(gulp.dest(publicDir));
+    .pipe(gulp.dest("."));
 };
 
 const svgSprite = () => {
@@ -158,11 +141,10 @@ const clean = () => {
 // -----------------------------------------------------
 
 const serve = done => {
-  const watchFiles = noReload ? [] : [`${tempDir}/**/*`, `${publicDir}/**/*`];
   browserSync.init(
     {
       // proxy: process.env.APACHE_VHOST || 'localhost:3002',
-      files: watchFiles,
+      files: [`${tempDir}/**/*`, `${publicDir}/**/*`],
       server: {
         baseDir: [tempDir, publicDir]
       },
