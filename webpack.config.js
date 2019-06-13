@@ -1,5 +1,4 @@
 const resolve = require("path").resolve;
-const webpack = require("webpack");
 
 /** Production モード */
 const isProduction = process.env.NODE_ENV === "production";
@@ -13,10 +12,7 @@ const tempDir = ".tmp";
 const targetDir = isProduction ? distDir : tempDir;
 
 module.exports = {
-  // モード値を production に設定すると最適化された状態で、
-  // development に設定するとソースマップ有効でJSファイルが出力される
-  mode: isProduction ? "production" : "development",
-
+  mode: process.env.NODE_ENV,
   entry: {
     main: resolve(__dirname, "src/assets/javascripts/main.js")
   },
@@ -24,13 +20,7 @@ module.exports = {
     path: resolve(__dirname, `${targetDir}/assets/javascripts`),
     filename: "[name].bundle.js"
   },
-  devtool: isProduction ? false : "inline-source-map",
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
-    }),
-    new webpack.NoEmitOnErrorsPlugin()
-  ],
+  devtool: isProduction ? "source-map" : "eval-source-map",
   module: {
     rules: [
       {
