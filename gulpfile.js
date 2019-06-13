@@ -4,12 +4,6 @@ const del = require("del");
 const dotenv = require("dotenv");
 const gulp = require("gulp");
 const gutil = require("gulp-util");
-const rename = require("gulp-rename");
-const sourcemaps = require("gulp-sourcemaps");
-const sass = require("gulp-sass");
-const postCss = require("gulp-postcss");
-const autoprefixer = require("autoprefixer");
-const csswring = require("csswring");
 const gimagemin = require("gulp-imagemin");
 const svgstore = require("gulp-svgstore");
 const browserSync = require("browser-sync").create();
@@ -37,29 +31,27 @@ const targetDir = isProduction ? distDir : tempDir;
 // CSS
 // -----------------------------------------------------
 
-const css = () => {
-  return gulp
-    .src([
-      `${srcDir}/assets/stylesheets/*.scss`,
-      `!${srcDir}/assets/stylesheets/_*.scss`
-    ])
-    .pipe(!isProduction ? sourcemaps.init() : gutil.noop())
-    .pipe(
-      sass({
-        includePaths: ["node_modules"],
-        outputStyle: "nested"
-      }).on("error", sass.logError)
-    )
-    .pipe(rename({ extname: ".bundle.css" }))
-    .pipe(
-      postCss([
-        autoprefixer({ grid: true }) // Browserslist is in package.json
-      ])
-    )
-    .pipe(isProduction ? postCss([csswring()]) : gutil.noop())
-    .pipe(!isProduction ? sourcemaps.write(".") : gutil.noop())
-    .pipe(gulp.dest(`${targetDir}/assets/stylesheets`));
-};
+const css = done => {
+  const args = [
+    `${srcDir}/assets/stylesheets/*.scss`,
+    `!${srcDir}/assets/stylesheets/_*.scss`,
+    `--dir ${targetDir}/assets/stylesheets`,
+    '--ext bundle.css',
+    '--verbose',
+  ]
+  if (!isProduction) {
+    args.push('--watch')
+  }
+  const child = spawn("postcss", args, {
+    shell: true,
+    stdio: "inherit"
+  });
+  if (isProduction) {
+    child.on("exit", done);
+  } else {
+    done();
+  }
+}
 
 // -----------------------------------------------------
 // JavaScript
@@ -157,20 +149,12 @@ const serve = done => {
 };
 
 // ------------------------------------------------------
-// Watch
-// ------------------------------------------------------
-
-const watch = () => {
-  gulp.watch(`${srcDir}/assets/stylesheets/**/*.scss`, gulp.series(css));
-};
-
-// ------------------------------------------------------
 // Export tasks
 // ------------------------------------------------------
 
 gulp.task(
   "default",
-  gulp.series(clean, gulp.parallel(css, js, svgSprite), serve, watch)
+  gulp.series(clean, gulp.parallel(css, js, svgSprite), serve)
 );
 
 gulp.task(
