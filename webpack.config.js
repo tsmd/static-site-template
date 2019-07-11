@@ -6,7 +6,7 @@ const isProduction = process.env.NODE_ENV === "production";
 module.exports = {
   mode: process.env.NODE_ENV,
   entry: {
-    main: resolve(__dirname, "public/assets/javascripts-dev/main.js")
+    main: resolve(__dirname, "public/assets/javascripts-src/main.js")
   },
   output: {
     path: resolve(__dirname, `public/assets/javascripts`),

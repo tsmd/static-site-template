@@ -22,8 +22,8 @@ const baseDir = "public";
 
 const css = done => {
   const args = [
-    `${baseDir}/assets/stylesheets-dev/*.scss`,
-    `!${baseDir}/assets/stylesheets-dev/_*.scss`,
+    `${baseDir}/assets/stylesheets-src/*.scss`,
+    `!${baseDir}/assets/stylesheets-src/_*.scss`,
     `--dir ${baseDir}/assets/stylesheets`,
     "--ext bundle.css",
     "--verbose"
@@ -119,8 +119,8 @@ const serve = done => {
       // proxy: process.env.APACHE_VHOST || 'localhost:3002',
       files: [
         `${baseDir}/**/*`,
-        `!${baseDir}/assets/javascripts-dev`,
-        `!${baseDir}/assets/stylesheets-dev`
+        `!${baseDir}/assets/javascripts-src`,
+        `!${baseDir}/assets/stylesheets-src`
       ],
       server: baseDir,
       notify: false,
