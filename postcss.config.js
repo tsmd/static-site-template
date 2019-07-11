@@ -1,7 +1,7 @@
 module.exports = ctx => {
   return {
     map: {
-      sourcesContent: false,
+      sourcesContent: true,
       annotation: true
     },
     syntax: "postcss-scss",

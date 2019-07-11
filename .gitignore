@@ -2,7 +2,6 @@
 ._*
 .env
 .idea/
-.tmp/
 .vscode/
 Desktop.ini
 dist/

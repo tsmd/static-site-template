@@ -15,6 +15,11 @@ const isProduction = process.env.NODE_ENV === "production";
 /** 基底ディレクトリ */
 const baseDir = "public";
 
+/** build 時の出力ディレクトリ */
+const distDir = "dist";
+
+const targetDir = isProduction ? distDir : baseDir;
+
 // -----------------------------------------------------
 // CSS
 // -----------------------------------------------------
@@ -23,7 +28,7 @@ const css = done => {
   const args = [
     `${baseDir}/assets/stylesheets-src/*.scss`,
     `!${baseDir}/assets/stylesheets-src/_*.scss`,
-    `--dir ${baseDir}/assets/stylesheets`,
+    `--dir ${targetDir}/assets/stylesheets`,
     "--ext bundle.css",
     "--verbose"
   ];
@@ -71,16 +76,17 @@ const imagemin = () => {
 };
 
 const svgSprite = () => {
-  const dir = `${baseDir}/assets/images/sprites`;
+  const srcDir = `${baseDir}/assets/images/sprites`;
+  const distDir = `${targetDir}/assets/images/sprites`;
   return Promise.all(
     fs
-      .readdirSync(dir)
-      .filter(file => fs.statSync(`${dir}/${file}`).isDirectory())
+      .readdirSync(srcDir)
+      .filter(file => fs.statSync(`${srcDir}/${file}`).isDirectory())
       .map(dir =>
         gulp
-          .src(`${dir}/${dir}/*.svg`)
+          .src(`${srcDir}/${dir}/*.svg`)
           .pipe(svgstore())
-          .pipe(gulp.dest(dir))
+          .pipe(gulp.dest(distDir))
       )
   );
 };
@@ -89,11 +95,33 @@ const svgSprite = () => {
 // Clean
 // -----------------------------------------------------
 
-const clean = () => {
+const cleanDev = () => {
   return Promise.all([
     del(`${baseDir}/assets/javascripts/**/*`, { dot: true }),
     del(`${baseDir}/assets/stylesheets/**/*`, { dot: true })
   ]);
+};
+
+const cleanProd = () => {
+  return del(`${distDir}/**/*`, { dot: true });
+};
+
+// -----------------------------------------------------
+// Deploy
+// -----------------------------------------------------
+
+const deploy = () => {
+  return gulp
+    .src(
+      [
+        `${baseDir}/**/*`,
+        `!${baseDir}/assets/images/sprites/**`,
+        `!${baseDir}/assets/javascripts-src/**`,
+        `!${baseDir}/assets/stylesheets-src/**`
+      ],
+      { dot: true }
+    )
+    .pipe(gulp.dest(distDir));
 };
 
 // -----------------------------------------------------
@@ -124,9 +152,12 @@ const serve = done => {
 
 gulp.task(
   "default",
-  gulp.series(clean, gulp.parallel(css, js, svgSprite), serve)
+  gulp.series(cleanDev, gulp.parallel(css, js, svgSprite), serve)
 );
 
-gulp.task("build", gulp.series(clean, gulp.parallel(css, js, svgSprite)));
+gulp.task(
+  "build",
+  gulp.series(cleanProd, deploy, gulp.parallel(css, js, svgSprite))
+);
 
 gulp.task("imagemin", gulp.series(imagemin));
