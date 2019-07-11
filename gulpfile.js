@@ -3,7 +3,6 @@ const fs = require("fs");
 const del = require("del");
 const dotenv = require("dotenv");
 const gulp = require("gulp");
-const gutil = require("gulp-util");
 const gimagemin = require("gulp-imagemin");
 const svgstore = require("gulp-svgstore");
 const browserSync = require("browser-sync").create();
@@ -81,18 +80,6 @@ const svgSprite = () => {
         gulp
           .src(`${dir}/${dir}/*.svg`)
           .pipe(svgstore())
-          .pipe(
-            isProduction
-              ? gimagemin([
-                  gimagemin.svgo({
-                    plugins: [
-                      { removeUselessDefs: false },
-                      { cleanupIDs: false }
-                    ]
-                  })
-                ])
-              : gutil.noop()
-          )
           .pipe(gulp.dest(dir))
       )
   );
