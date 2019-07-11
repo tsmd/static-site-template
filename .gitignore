@@ -2,10 +2,12 @@
 ._*
 .env
 .idea/
-.tmp/
 .vscode/
 Desktop.ini
 dist/
 node_modules/
 npm-debug.log*
 Thumbs.db
+public/assets/images/sprites/*
+public/assets/javascripts
+public/assets/stylesheets

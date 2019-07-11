@@ -3,7 +3,6 @@ const fs = require("fs");
 const del = require("del");
 const dotenv = require("dotenv");
 const gulp = require("gulp");
-const gutil = require("gulp-util");
 const gimagemin = require("gulp-imagemin");
 const svgstore = require("gulp-svgstore");
 const browserSync = require("browser-sync").create();
@@ -13,19 +12,13 @@ dotenv.config();
 /** Production モード */
 const isProduction = process.env.NODE_ENV === "production";
 
-/** src ディレクトリ */
-const srcDir = "src";
-
-/** 静的ファイル格納ディレクトリ */
-const publicDir = "public";
+/** 基底ディレクトリ */
+const baseDir = "public";
 
 /** build 時の出力ディレクトリ */
 const distDir = "dist";
 
-/** 開発用サーバーのドキュメントルートとなる一時フォルダ */
-const tempDir = ".tmp";
-
-const targetDir = isProduction ? distDir : tempDir;
+const targetDir = isProduction ? distDir : baseDir;
 
 // -----------------------------------------------------
 // CSS
@@ -33,14 +26,14 @@ const targetDir = isProduction ? distDir : tempDir;
 
 const css = done => {
   const args = [
-    `${srcDir}/assets/stylesheets/*.scss`,
-    `!${srcDir}/assets/stylesheets/_*.scss`,
+    `${baseDir}/assets/stylesheets-src/*.scss`,
+    `!${baseDir}/assets/stylesheets-src/_*.scss`,
     `--dir ${targetDir}/assets/stylesheets`,
-    '--ext bundle.css',
-    '--verbose',
-  ]
+    "--ext bundle.css",
+    "--verbose"
+  ];
   if (!isProduction) {
-    args.push('--watch')
+    args.push("--watch");
   }
   const child = spawn("postcss", args, {
     shell: true,
@@ -51,7 +44,7 @@ const css = done => {
   } else {
     done();
   }
-}
+};
 
 // -----------------------------------------------------
 // JavaScript
@@ -77,55 +70,58 @@ const js = done => {
 const imagemin = () => {
   const pattern = "**/*.{png,jpg,jpeg,gif,svg}";
   return gulp
-    .src([`${publicDir}/${pattern}`, `${srcDir}/${pattern}`], { base: "." })
+    .src([`${baseDir}/${pattern}`], { base: "." })
     .pipe(gimagemin())
     .pipe(gulp.dest("."));
 };
 
 const svgSprite = () => {
-  const baseDir = `${srcDir}/assets/images/sprites`;
+  const srcDir = `${baseDir}/assets/images/sprites`;
   const distDir = `${targetDir}/assets/images/sprites`;
   return Promise.all(
     fs
-      .readdirSync(baseDir)
-      .filter(file => fs.statSync(`${baseDir}/${file}`).isDirectory())
+      .readdirSync(srcDir)
+      .filter(file => fs.statSync(`${srcDir}/${file}`).isDirectory())
       .map(dir =>
         gulp
-          .src(`${baseDir}/${dir}/*.svg`)
+          .src(`${srcDir}/${dir}/*.svg`)
           .pipe(svgstore())
-          .pipe(
-            isProduction
-              ? gimagemin([
-                  gimagemin.svgo({
-                    plugins: [
-                      { removeUselessDefs: false },
-                      { cleanupIDs: false }
-                    ]
-                  })
-                ])
-              : gutil.noop()
-          )
           .pipe(gulp.dest(distDir))
       )
   );
 };
 
 // -----------------------------------------------------
-// Static File
-// -----------------------------------------------------
-
-gulp.task("static", () => {
-  return gulp
-    .src([`${publicDir}/**/*`], { dot: true })
-    .pipe(gulp.dest(targetDir));
-});
-
-// -----------------------------------------------------
 // Clean
 // -----------------------------------------------------
 
-const clean = () => {
-  return del(`${targetDir}/**/*`, { dot: true });
+const cleanDev = () => {
+  return Promise.all([
+    del(`${baseDir}/assets/javascripts/**/*`, { dot: true }),
+    del(`${baseDir}/assets/stylesheets/**/*`, { dot: true })
+  ]);
+};
+
+const cleanProd = () => {
+  return del(`${distDir}/**/*`, { dot: true });
+};
+
+// -----------------------------------------------------
+// Deploy
+// -----------------------------------------------------
+
+const deploy = () => {
+  return gulp
+    .src(
+      [
+        `${baseDir}/**/*`,
+        `!${baseDir}/assets/images/sprites/**`,
+        `!${baseDir}/assets/javascripts-src/**`,
+        `!${baseDir}/assets/stylesheets-src/**`
+      ],
+      { dot: true }
+    )
+    .pipe(gulp.dest(distDir));
 };
 
 // -----------------------------------------------------
@@ -136,10 +132,12 @@ const serve = done => {
   browserSync.init(
     {
       // proxy: process.env.APACHE_VHOST || 'localhost:3002',
-      files: [`${tempDir}/**/*`, `${publicDir}/**/*`],
-      server: {
-        baseDir: [tempDir, publicDir]
-      },
+      files: [
+        `${baseDir}/**/*`,
+        `!${baseDir}/assets/javascripts-src`,
+        `!${baseDir}/assets/stylesheets-src`
+      ],
+      server: baseDir,
       notify: false,
       open: false,
       reloadDebounce: 100
@@ -154,12 +152,12 @@ const serve = done => {
 
 gulp.task(
   "default",
-  gulp.series(clean, gulp.parallel(css, js, svgSprite), serve)
+  gulp.series(cleanDev, gulp.parallel(css, js, svgSprite), serve)
 );
 
 gulp.task(
   "build",
-  gulp.series(clean, gulp.parallel("static", css, js, svgSprite))
+  gulp.series(cleanProd, deploy, gulp.parallel(css, js, svgSprite))
 );
 
 gulp.task("imagemin", gulp.series(imagemin));

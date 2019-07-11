@@ -1,7 +1,6 @@
 module.exports = ctx => {
   return {
     map: {
-      inline: ctx.env !== "production",
       sourcesContent: true,
       annotation: true
     },
