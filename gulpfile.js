@@ -33,14 +33,14 @@ const targetDir = isProduction ? distDir : tempDir;
 
 const css = done => {
   const args = [
-    `${srcDir}/assets/stylesheets/*.scss`,
-    `!${srcDir}/assets/stylesheets/_*.scss`,
-    `--dir ${targetDir}/assets/stylesheets`,
-    '--ext bundle.css',
-    '--verbose',
-  ]
+    `${publicDir}/assets/stylesheets-dev/*.scss`,
+    `!${publicDir}/assets/stylesheets-dev/_*.scss`,
+    `--dir ${publicDir}/assets/stylesheets`,
+    "--ext bundle.css",
+    "--verbose"
+  ];
   if (!isProduction) {
-    args.push('--watch')
+    args.push("--watch");
   }
   const child = spawn("postcss", args, {
     shell: true,
@@ -51,7 +51,7 @@ const css = done => {
   } else {
     done();
   }
-}
+};
 
 // -----------------------------------------------------
 // JavaScript
@@ -125,7 +125,10 @@ gulp.task("static", () => {
 // -----------------------------------------------------
 
 const clean = () => {
-  return del(`${targetDir}/**/*`, { dot: true });
+  return Promise.all([
+    del(`${targetDir}/**/*`, { dot: true }),
+    del(`${publicDir}/assets/stylesheets/**/*`, { dot: true })
+  ]);
 };
 
 // -----------------------------------------------------

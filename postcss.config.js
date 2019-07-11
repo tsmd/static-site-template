@@ -1,8 +1,7 @@
 module.exports = ctx => {
   return {
     map: {
-      inline: ctx.env !== "production",
-      sourcesContent: true,
+      sourcesContent: false,
       annotation: true
     },
     syntax: "postcss-scss",
