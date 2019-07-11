@@ -13,19 +13,8 @@ dotenv.config();
 /** Production モード */
 const isProduction = process.env.NODE_ENV === "production";
 
-/** src ディレクトリ */
-const srcDir = "src";
-
-/** 静的ファイル格納ディレクトリ */
-const publicDir = "public";
-
-/** build 時の出力ディレクトリ */
-const distDir = "dist";
-
-/** 開発用サーバーのドキュメントルートとなる一時フォルダ */
-const tempDir = ".tmp";
-
-const targetDir = isProduction ? distDir : tempDir;
+/** 基底ディレクトリ */
+const baseDir = "public";
 
 // -----------------------------------------------------
 // CSS
@@ -33,9 +22,9 @@ const targetDir = isProduction ? distDir : tempDir;
 
 const css = done => {
   const args = [
-    `${publicDir}/assets/stylesheets-dev/*.scss`,
-    `!${publicDir}/assets/stylesheets-dev/_*.scss`,
-    `--dir ${publicDir}/assets/stylesheets`,
+    `${baseDir}/assets/stylesheets-dev/*.scss`,
+    `!${baseDir}/assets/stylesheets-dev/_*.scss`,
+    `--dir ${baseDir}/assets/stylesheets`,
     "--ext bundle.css",
     "--verbose"
   ];
@@ -77,21 +66,20 @@ const js = done => {
 const imagemin = () => {
   const pattern = "**/*.{png,jpg,jpeg,gif,svg}";
   return gulp
-    .src([`${publicDir}/${pattern}`, `${srcDir}/${pattern}`], { base: "." })
+    .src([`${baseDir}/${pattern}`], { base: "." })
     .pipe(gimagemin())
     .pipe(gulp.dest("."));
 };
 
 const svgSprite = () => {
-  const baseDir = `${publicDir}/assets/images/sprites`;
-  const distDir = `${publicDir}/assets/images/sprites`;
+  const dir = `${baseDir}/assets/images/sprites`;
   return Promise.all(
     fs
-      .readdirSync(baseDir)
-      .filter(file => fs.statSync(`${baseDir}/${file}`).isDirectory())
+      .readdirSync(dir)
+      .filter(file => fs.statSync(`${dir}/${file}`).isDirectory())
       .map(dir =>
         gulp
-          .src(`${baseDir}/${dir}/*.svg`)
+          .src(`${dir}/${dir}/*.svg`)
           .pipe(svgstore())
           .pipe(
             isProduction
@@ -105,20 +93,10 @@ const svgSprite = () => {
                 ])
               : gutil.noop()
           )
-          .pipe(gulp.dest(distDir))
+          .pipe(gulp.dest(dir))
       )
   );
 };
-
-// -----------------------------------------------------
-// Static File
-// -----------------------------------------------------
-
-gulp.task("static", () => {
-  return gulp
-    .src([`${publicDir}/**/*`], { dot: true })
-    .pipe(gulp.dest(targetDir));
-});
 
 // -----------------------------------------------------
 // Clean
@@ -126,9 +104,8 @@ gulp.task("static", () => {
 
 const clean = () => {
   return Promise.all([
-    del(`${targetDir}/**/*`, { dot: true }),
-    del(`${publicDir}/assets/javascripts/**/*`, { dot: true }),
-    del(`${publicDir}/assets/stylesheets/**/*`, { dot: true })
+    del(`${baseDir}/assets/javascripts/**/*`, { dot: true }),
+    del(`${baseDir}/assets/stylesheets/**/*`, { dot: true })
   ]);
 };
 
@@ -140,10 +117,12 @@ const serve = done => {
   browserSync.init(
     {
       // proxy: process.env.APACHE_VHOST || 'localhost:3002',
-      files: [`${tempDir}/**/*`, `${publicDir}/**/*`],
-      server: {
-        baseDir: [tempDir, publicDir]
-      },
+      files: [
+        `${baseDir}/**/*`,
+        `!${baseDir}/assets/javascripts-dev`,
+        `!${baseDir}/assets/stylesheets-dev`
+      ],
+      server: baseDir,
       notify: false,
       open: false,
       reloadDebounce: 100
@@ -161,9 +140,6 @@ gulp.task(
   gulp.series(clean, gulp.parallel(css, js, svgSprite), serve)
 );
 
-gulp.task(
-  "build",
-  gulp.series(clean, gulp.parallel("static", css, js, svgSprite))
-);
+gulp.task("build", gulp.series(clean, gulp.parallel(css, js, svgSprite)));
 
 gulp.task("imagemin", gulp.series(imagemin));
