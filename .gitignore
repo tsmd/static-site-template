@@ -9,5 +9,6 @@ dist/
 node_modules/
 npm-debug.log*
 Thumbs.db
-public/assets/stylesheets
 public/assets/images/sprites/*
+public/assets/javascripts
+public/assets/stylesheets

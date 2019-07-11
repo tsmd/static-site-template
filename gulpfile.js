@@ -127,6 +127,7 @@ gulp.task("static", () => {
 const clean = () => {
   return Promise.all([
     del(`${targetDir}/**/*`, { dot: true }),
+    del(`${publicDir}/assets/javascripts/**/*`, { dot: true }),
     del(`${publicDir}/assets/stylesheets/**/*`, { dot: true })
   ]);
 };
