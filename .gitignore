@@ -10,3 +10,4 @@ node_modules/
 npm-debug.log*
 Thumbs.db
 public/assets/stylesheets
+public/assets/images/sprites/*
