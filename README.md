@@ -4,21 +4,18 @@
 
 ```
 .
-├── .tmp ...................... コンパイルしたファイルの一時的格納先。バージョン管理に含まない
 ├── dist ...................... ビルドされたファイルの出力先
-├── public .................... 静的ファイル。ビルドすると dist にコピーされる
-│   ├── assets
-│   │   ├── fonts
-│   │   └── images
-│   ├── images ................ トップページで使用する画像
-└── src ....................... JS, Sass などコンパイルが必要なファイル
-    └── assets
-        ├── javascripts ....... JavaScript
-        ├── images
-        │   ├── sprites ........SVG スプライト用画像
-        │   │   └── icons
-        └── stylesheets ....... Sass
-            └── components .... 各 BEM Block をファイルに分けて格納
+└── public .................... 基底フォルダ
+    ├── assets
+    │   ├── images
+    │   │   └── sprites ........SVG スプライト用画像
+    │   │       └── icons
+    │   ├── javascripts ....... コンパイル後の JavaScript 出力フォルダ
+    │   ├── javascripts-src ... JavaScript ソース
+    │   ├── stylesheets ....... コンパイル後の CSS 出力フォルダ
+    │   └── stylesheets-src ... CSS ソース
+    │       └── components .... 各 BEM Block をファイルに分けて格納
+    └── images ................ トップページで使用する画像
 ```
 
 ## 開発のはじめ方
